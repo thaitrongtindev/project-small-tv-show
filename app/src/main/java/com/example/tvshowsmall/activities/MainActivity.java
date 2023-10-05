@@ -1,8 +1,10 @@
-package com.example.tvshowsmall;
+package com.example.tvshowsmall.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.tvshowsmall.R;
 
 public class MainActivity extends AppCompatActivity {
 
