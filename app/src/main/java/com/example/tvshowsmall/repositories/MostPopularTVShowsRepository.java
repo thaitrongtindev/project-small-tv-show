@@ -24,6 +24,7 @@ public class MostPopularTVShowsRepository {
         apiService.getMostPopularTVShows(page).enqueue(new Callback<TVShowResponse>() {
             @Override
             public void onResponse(Call<TVShowResponse> call, Response<TVShowResponse> response) {
+
                 data.setValue(response.body());
             }
 
