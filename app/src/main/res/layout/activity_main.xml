@@ -50,7 +50,6 @@
                 android:layout_height="@dimen/_24sdp"
                 android:layout_marginStart="@dimen/_70sdp"
                 android:padding="2dp"
-
                 android:src="@drawable/ic_eye"
                 app:tint="@color/colorTextIcons"></ImageView>
 
