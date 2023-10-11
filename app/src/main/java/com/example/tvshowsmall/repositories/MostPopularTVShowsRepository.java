@@ -1,5 +1,7 @@
 package com.example.tvshowsmall.repositories;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -24,7 +26,7 @@ public class MostPopularTVShowsRepository {
         apiService.getMostPopularTVShows(page).enqueue(new Callback<TVShowResponse>() {
             @Override
             public void onResponse(Call<TVShowResponse> call, Response<TVShowResponse> response) {
-
+                Log.e("DATA", response.body().toString());
                 data.setValue(response.body());
             }
 

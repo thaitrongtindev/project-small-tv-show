@@ -1,11 +1,14 @@
 package com.example.tvshowsmall.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
@@ -26,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
 
     private List<TVShow> tvShows = new ArrayList<>();
     private TVShowsAdapter tvShowsAdapter;
+    private int currentPage = 1;
+    private int totalAvailablePage = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
         //inital activityMainBinding
         activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-
+        doInitalization();
     }
 
     private void doInitalization() {
@@ -44,26 +49,63 @@ public class MainActivity extends AppCompatActivity {
         tvShowsAdapter = new TVShowsAdapter(tvShows);
         activityMainBinding.tvShowRecyclerView.setAdapter(tvShowsAdapter);
 
+        //scroll view
+        activityMainBinding.tvShowRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (!activityMainBinding.tvShowRecyclerView.canScrollVertically(1)) {
+                    // kiểm tra xem danh sách có thể cuộn thêm xuống bên dưới hay không.
+                    if (currentPage <= totalAvailablePage) {
+                        currentPage += 1;
+                        getMostPopularTVShows();
+                    }
+                }
+            }
+        });
 
 
         getMostPopularTVShows();
     }
 
     private void getMostPopularTVShows() {
-        viewModel.getMostPopularTVShows(0).observe(this, mostPopularTVShowsResponse
-                -> Toast.makeText(getApplicationContext(), "Total Pages" + mostPopularTVShowsResponse.getTotalPages(), Toast.LENGTH_SHORT).show());
+//        viewModel.getMostPopularTVShows(0).observe(this, mostPopularTVShowsResponse
+//                -> Toast.makeText(getApplicationContext(), "Total Pages" + mostPopularTVShowsResponse.getTotalPages(), Toast.LENGTH_SHORT).show());
 
-        activityMainBinding.setIsLoading(true);
-        viewModel.getMostPopularTVShows(0).observe(this, new Observer<TVShowResponse>() {
+       // activityMainBinding.setIsLoading(true);
+        toggleLoading();
+        viewModel.getMostPopularTVShows(currentPage).observe(this, new Observer<TVShowResponse>() {
             @Override
             public void onChanged(TVShowResponse tvShowResponse) {
-                activityMainBinding.setIsLoading(false);
+             //   activityMainBinding.setIsLoading(false);
+                toggleLoading();
+                totalAvailablePage = tvShowResponse.getTotalPages();// tong trong hien co
                 if (tvShowResponse != null) {
+                    int oldCount = tvShows.size(); // so phan tu cua TVshow tra ve
                     tvShows.addAll(tvShowResponse.getTvShows());
+                    Log.e("TVShows", tvShowResponse.getTvShows().toString());
+                    //tvShowsAdapter.notifyItemRangeChanged(oldCount, tvShows.size());
                     tvShowsAdapter.notifyDataSetChanged();
                 }
             }
         });
 
+    }
+
+    private void toggleLoading() {
+        if (currentPage == 1) {
+            if (activityMainBinding.getIsLoading() != null && activityMainBinding.getIsLoading()) {
+                activityMainBinding.setIsLoading(false);
+            } else {
+                activityMainBinding.setIsLoading(true);
+            }
+        } else {
+            if (activityMainBinding.getIsLoadingMore() != null && activityMainBinding.getIsLoadingMore()) {
+                activityMainBinding.setIsLoadingMore(false);
+            } else  {
+                activityMainBinding.setIsLoadingMore(true);
+            }
+        }
     }
 }
