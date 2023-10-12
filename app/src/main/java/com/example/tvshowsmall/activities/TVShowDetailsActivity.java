@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import com.example.tvshowsmall.R;
+import com.example.tvshowsmall.adapter.ImageSliderAdapter;
 import com.example.tvshowsmall.databinding.ActivityTvshowDetailsBinding;
 import com.example.tvshowsmall.responses.TVShowDetailsResponse;
 import com.example.tvshowsmall.viewmodels.TVShowDetailsViewModel;
@@ -39,8 +40,20 @@ public class TVShowDetailsActivity extends AppCompatActivity {
             @Override
             public void onChanged(TVShowDetailsResponse tvShowDetailsResponse) {
                 activityTvshowDetailsBinding.setIsLoading(false);
-                Toast.makeText(TVShowDetailsActivity.this, tvShowDetailsResponse.getTvShowDetails().getUrl(), Toast.LENGTH_SHORT).show();
+                if (tvShowDetailsResponse.getTvShowDetails() != null) {
+                    if (tvShowDetailsResponse.getTvShowDetails().getPictures() != null) {
+
+                        // lay url anh tu api roi hien thi slideImage
+                        loadImageSlider(tvShowDetailsResponse.getTvShowDetails().getPictures());
+                    }
+                }
             }
         });
+    }
+
+    private void loadImageSlider(String []sliderImages) {
+        activityTvshowDetailsBinding.sliderViewPager.setOffscreenPageLimit(1);
+        activityTvshowDetailsBinding.sliderViewPager.setAdapter(new ImageSliderAdapter(sliderImages));
+
     }
 }
