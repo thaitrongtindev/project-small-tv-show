@@ -30,7 +30,13 @@
             android:orientation="horizontal"
             android:padding="@dimen/_8sdp"
             app:layout_constraintTop_toTopOf="parent">
-
+            <ImageView
+                android:id="@+id/imageViewSearch"
+                android:layout_width="@dimen/_24sdp"
+                android:layout_height="@dimen/_24sdp"
+                android:padding="2dp"
+                android:src="@drawable/ic_search"
+                app:tint="@color/colorTextIcons"></ImageView>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -48,19 +54,12 @@
                 android:id="@+id/imageViewWatchlist"
                 android:layout_width="@dimen/_24sdp"
                 android:layout_height="@dimen/_24sdp"
-                android:layout_marginStart="@dimen/_70sdp"
+                android:layout_marginStart="@dimen/_50sdp"
                 android:padding="2dp"
                 android:src="@drawable/ic_eye"
                 app:tint="@color/colorTextIcons"></ImageView>
 
-            <ImageView
-                android:id="@+id/imageViewSearch"
-                android:layout_width="@dimen/_24sdp"
-                android:layout_height="@dimen/_24sdp"
-                android:layout_marginStart="@dimen/_5sdp"
-                android:padding="2dp"
-                android:src="@drawable/ic_search"
-                app:tint="@color/colorTextIcons"></ImageView>
+
 
         </LinearLayout>
 
