@@ -16,14 +16,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Toast;
 
 
 import com.example.tvshowsmall.R;
+import com.example.tvshowsmall.adapter.EpisodesAdapter;
 import com.example.tvshowsmall.adapter.ImageSliderAdapter;
 import com.example.tvshowsmall.databinding.ActivityTvshowDetailsBinding;
+import com.example.tvshowsmall.databinding.LayoutEpisodesBottomSheetBinding;
 import com.example.tvshowsmall.responses.TVShowDetailsResponse;
 import com.example.tvshowsmall.viewmodels.TVShowDetailsViewModel;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.Locale;
 
@@ -33,6 +38,8 @@ public class TVShowDetailsActivity extends AppCompatActivity {
     private TVShowDetailsViewModel tvShowDetailsViewModel;
     private Handler handler = new Handler(Looper.getMainLooper());
     private Runnable runnable;
+    private LayoutEpisodesBottomSheetBinding episodesBottomSheetBinding;
+    private BottomSheetDialog episodeBottomSheetDiaglog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +84,7 @@ public class TVShowDetailsActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View view) {
                             if (activityTvshowDetailsBinding.textReadMore.getText().toString().equals("Read More")) {
-                                activityTvshowDetailsBinding. textDescription.setMaxLines(Integer.MAX_VALUE);
+                                activityTvshowDetailsBinding.textDescription.setMaxLines(Integer.MAX_VALUE);
                                 activityTvshowDetailsBinding.textDescription.setEllipsize(null);
                                 activityTvshowDetailsBinding.textReadMore.setText("Read Less");
                             } else {
@@ -106,6 +113,25 @@ public class TVShowDetailsActivity extends AppCompatActivity {
                             intent.setData(Uri.parse(tvShowDetailsResponse.getTvShowDetails().getUrl()));
                             startActivity(intent);
                         }
+                    });
+                    // click
+                    activityTvshowDetailsBinding.btnEpisodes.setOnClickListener(view -> {
+                        Toast.makeText(TVShowDetailsActivity.this, "Click Episode", Toast.LENGTH_LONG).show();
+                        episodeBottomSheetDiaglog = new BottomSheetDialog(TVShowDetailsActivity.this);
+                        episodesBottomSheetBinding = DataBindingUtil.inflate(LayoutInflater.from(TVShowDetailsActivity.this),
+                                R.layout.layout_episodes_bottom_sheet, findViewById(R.id.episodesContainer), false);
+                        episodeBottomSheetDiaglog.setContentView(episodesBottomSheetBinding.getRoot());
+                        episodesBottomSheetBinding.episodesRecyclerView.setAdapter(
+                                new EpisodesAdapter(tvShowDetailsResponse.getTvShowDetails().getEpisodes())
+                        );
+
+                        episodesBottomSheetBinding.textTittle.setText(
+                                String.format("Episodes | %s", getIntent().getStringExtra("name"))
+                        );
+                        episodeBottomSheetDiaglog.show();
+
+                        episodesBottomSheetBinding.imageClose.setOnClickListener(view1 -> episodeBottomSheetDiaglog.dismiss());
+
                     });
                     loadBasicTVShowDetails();
                 }
