@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
@@ -26,20 +27,31 @@ import com.example.tvshowsmall.adapter.EpisodesAdapter;
 import com.example.tvshowsmall.adapter.ImageSliderAdapter;
 import com.example.tvshowsmall.databinding.ActivityTvshowDetailsBinding;
 import com.example.tvshowsmall.databinding.LayoutEpisodesBottomSheetBinding;
+import com.example.tvshowsmall.models.TVShow;
 import com.example.tvshowsmall.responses.TVShowDetailsResponse;
+import com.example.tvshowsmall.viewmodels.MyViewModelFactory;
 import com.example.tvshowsmall.viewmodels.TVShowDetailsViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.Locale;
 
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 public class TVShowDetailsActivity extends AppCompatActivity {
 
     private ActivityTvshowDetailsBinding activityTvshowDetailsBinding;
     private TVShowDetailsViewModel tvShowDetailsViewModel;
+    private MyViewModelFactory factory;
     private Handler handler = new Handler(Looper.getMainLooper());
     private Runnable runnable;
     private LayoutEpisodesBottomSheetBinding episodesBottomSheetBinding;
     private BottomSheetDialog episodeBottomSheetDiaglog;
+
+    private TVShow tvShow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,16 +63,16 @@ public class TVShowDetailsActivity extends AppCompatActivity {
     }
 
     private void doInitialization() {
-
-        tvShowDetailsViewModel = new ViewModelProvider(this).get(TVShowDetailsViewModel.class);
+        factory = new MyViewModelFactory(getApplication());
+        tvShowDetailsViewModel = new ViewModelProvider(this, factory).get(TVShowDetailsViewModel.class);
         activityTvshowDetailsBinding.imageBack.setOnClickListener(view -> onBackPressed());
-
+        tvShow = (TVShow) getIntent().getSerializableExtra("tvShow");
         getTVShowsDetails();
     }
 
     private void getTVShowsDetails() {
         activityTvshowDetailsBinding.setIsLoading(true);
-        String tvShowId = String.valueOf(getIntent().getIntExtra("id", -1));
+        String tvShowId = String.valueOf(tvShow.getId());
         tvShowDetailsViewModel.getTVShowDetails(tvShowId).observe(this, new Observer<TVShowDetailsResponse>() {
             @Override
             public void onChanged(TVShowDetailsResponse tvShowDetailsResponse) {
@@ -126,13 +138,40 @@ public class TVShowDetailsActivity extends AppCompatActivity {
                         );
 
                         episodesBottomSheetBinding.textTittle.setText(
-                                String.format("Episodes | %s", getIntent().getStringExtra("name"))
+                                String.format("Episodes | %s", tvShow.getName())
                         );
                         episodeBottomSheetDiaglog.show();
 
                         episodesBottomSheetBinding.imageClose.setOnClickListener(view1 -> episodeBottomSheetDiaglog.dismiss());
 
+                        // click add moive
+                        // Gắn một OnClickListener vào biểu tượng imageWatchlist
+                        activityTvshowDetailsBinding.imageWatchlist.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                // Tạo một CompositeDisposable để quản lý các tài nguyên
+                                CompositeDisposable compositeDisposable = new CompositeDisposable();
+                                Toast.makeText(TVShowDetailsActivity.this, "Click", Toast.LENGTH_LONG).show();
+                                // Thực hiện thêm TV show vào danh sách theo dõi thông qua ViewModel
+                                Disposable disposable = tvShowDetailsViewModel.addToWatchlist(tvShow)
+                                        .subscribeOn(Schedulers.io()) // Thực hiện trên luồng I/O
+                                        .observeOn(AndroidSchedulers.mainThread()) // Thực hiện trên luồng chính (UI)
+                                        .subscribe(() -> {
+                                            // Khi thêm vào danh sách thành công, cập nhật giao diện người dùng
+                                            activityTvshowDetailsBinding.imageWatchlist.setImageResource(R.drawable.ic_check);
+                                            // Hiển thị thông báo "Added to watchlist"
+                                            Toast.makeText(getApplicationContext(), "Added to watchlist", Toast.LENGTH_LONG).show();
+                                        }, throwable -> {
+                                            // Xử lý khi có lỗi xảy ra (nếu cần)
+                                            Log.e("TAG", "Error adding to watchlist: " + throwable.getMessage());
+                                        });
+
+                                // Thêm Disposable vào CompositeDisposable để quản lý
+                                compositeDisposable.add(disposable);
+                            }
+                        });
                     });
+                    activityTvshowDetailsBinding.imageWatchlist.setVisibility(View.VISIBLE);
                     loadBasicTVShowDetails();
                 }
             }
@@ -189,10 +228,10 @@ public class TVShowDetailsActivity extends AppCompatActivity {
 //    }
 
     private void loadBasicTVShowDetails() {
-        activityTvshowDetailsBinding.setTvShowName(getIntent().getStringExtra("name"));
-        activityTvshowDetailsBinding.setNetworkCountry(getIntent().getStringExtra("network") + " ( "
-                + getIntent().getStringExtra("country") + ")");
-        activityTvshowDetailsBinding.setStatus(getIntent().getStringExtra("status"));
-        activityTvshowDetailsBinding.setStartDate(getIntent().getStringExtra("startDate"));
+        activityTvshowDetailsBinding.setTvShowName(tvShow.getName());
+        activityTvshowDetailsBinding.setNetworkCountry(tvShow.getNetwork() + " ( "
+                + tvShow.getCountry() + ")");
+        activityTvshowDetailsBinding.setStatus(tvShow.getStatus());
+        activityTvshowDetailsBinding.setStartDate(tvShow.getStartDate());
     }
 }

@@ -316,41 +316,40 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    app:layout_constraintTop_toBottomOf="@+id/viewDider2"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@+id/viewDider2">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnWebsite"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/_8sdp"
-                        android:fontFamily="@font/ubuntu_medium"
+                        android:backgroundTint="@color/colorAccent"
 
+                        android:fontFamily="@font/ubuntu_medium"
                         android:includeFontPadding="false"
                         android:text="@string/website"
-                        android:backgroundTint="@color/colorAccent"
                         app:cornerRadius="@dimen/_6sdp"
 
-                     />
+                        />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnEpisodes"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/_8sdp"
                         android:layout_marginStart="@dimen/_8sdp"
                         android:layout_marginTop="@dimen/_8sdp"
+                        android:layout_marginEnd="@dimen/_8sdp"
                         android:layout_marginBottom="@dimen/_8sdp"
+                        android:backgroundTint="@color/colorTextOther"
                         android:fontFamily="@font/ubuntu_medium"
                         android:includeFontPadding="false"
                         android:text="@string/episodes"
-                        android:backgroundTint="@color/colorTextOther"
                         app:cornerRadius="@dimen/_6sdp"
 
 
                         />
                 </LinearLayout>
-
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -365,6 +364,19 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/imageWatchlist"
+            android:layout_width="@dimen/_35sdp"
+            android:layout_height="@dimen/_35sdp"
+            android:layout_marginEnd="@dimen/_20sdp"
+            android:layout_marginBottom="@dimen/_20sdp"
+            android:background="@drawable/background_fab"
+            android:padding="@dimen/_8sdp"
+            android:src="@drawable/ic_eye"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/colorTextIcons" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,6 +6,7 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
+import com.example.tvshowsmall.dao.TVShowDao;
 import com.example.tvshowsmall.models.TVShow;
 import com.example.tvshowsmall.models.TVShowDetails;
 
@@ -22,4 +23,5 @@ public abstract class TVShowDatabase extends RoomDatabase {
         }
         return tvShowDatabase;
     }
+    public abstract TVShowDao tvShowDao();
 }
