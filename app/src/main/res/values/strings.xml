@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">TVShowSmall</string>
+    <string name="this_iss_text_status">This iss text status</string>
+    <string name="this_is_a_text_started">This is a text started</string>
+    <string name="this_iss_a_text_network">This iss a text network</string>
+    <string name="this_is_a_textname">This is a textName</string>
+    <string name="read_more">Read More</string>
+    <string name="website">Website</string>
+    <string name="episodes">Episodes</string>
+</resources>
