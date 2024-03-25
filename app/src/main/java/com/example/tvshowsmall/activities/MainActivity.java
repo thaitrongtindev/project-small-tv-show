@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.example.tvshowsmall.R;
 import com.example.tvshowsmall.adapter.TVShowsAdapter;
@@ -65,7 +66,12 @@ public class MainActivity extends AppCompatActivity  implements TVShowsListener 
             }
         });
 
-
+        activityMainBinding.imageViewWatchlist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), WatchlistActivity.class));
+            }
+        });
         getMostPopularTVShows();
     }
 
