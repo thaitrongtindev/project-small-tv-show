@@ -3,7 +3,6 @@ package com.example.tvshowsmall.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,11 +22,8 @@ import com.example.tvshowsmall.viewmodels.WatchlistViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.CompletableObserver;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 
@@ -62,6 +58,7 @@ public class WatchlistActivity extends AppCompatActivity implements WatchlistLis
             }
         });
         watchlist = new ArrayList<>();
+        loadWatchlist();
     }
 
     private void loadWatchlist() {
@@ -87,7 +84,8 @@ public class WatchlistActivity extends AppCompatActivity implements WatchlistLis
     @Override
     protected void onResume() {
         super.onResume();
-        loadWatchlist();
+            loadWatchlist();
+
     }
 
     @Override

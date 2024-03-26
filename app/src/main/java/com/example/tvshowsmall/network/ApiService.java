@@ -17,4 +17,7 @@ public interface ApiService {
     //https://www.episodate.com/api/show-details?q=arrow
     @GET("show-details")
     Call<TVShowDetailsResponse> getTVShowDetails(@Query("q") String tvShowId);
+
+    @GET("search")
+    Call<TVShowResponse> searchTVShow(@Query("q") String query, @Query("page") int page);
 }

@@ -35,10 +35,13 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.Locale;
 
+import io.reactivex.Completable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class TVShowDetailsActivity extends AppCompatActivity {
@@ -52,6 +55,7 @@ public class TVShowDetailsActivity extends AppCompatActivity {
     private BottomSheetDialog episodeBottomSheetDiaglog;
 
     private TVShow tvShow;
+    private Boolean isTVShowAvailableInWatchlist = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +63,7 @@ public class TVShowDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_tvshow_details);
 
         activityTvshowDetailsBinding = DataBindingUtil.setContentView(this, R.layout.activity_tvshow_details);
+        Log.e("TAG", "onCreate: ");
         doInitialization();
     }
 
@@ -67,7 +72,27 @@ public class TVShowDetailsActivity extends AppCompatActivity {
         tvShowDetailsViewModel = new ViewModelProvider(this, factory).get(TVShowDetailsViewModel.class);
         activityTvshowDetailsBinding.imageBack.setOnClickListener(view -> onBackPressed());
         tvShow = (TVShow) getIntent().getSerializableExtra("tvShow");
+
+        checkTVShowInWatchlist();
+        Log.e("TAG", "doInitialization" );
         getTVShowsDetails();
+
+    }
+
+    public void checkTVShowInWatchlist() {
+        Log.e("TAG", ""+ tvShowDetailsViewModel.getTVShowFromWatchlist(String.valueOf(tvShow.getId())).toString()) ;
+        CompositeDisposable compositeDisposable = new CompositeDisposable();
+        compositeDisposable.add(tvShowDetailsViewModel.getTVShowFromWatchlist(String.valueOf(tvShow.getId()))
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<TVShow>() {
+                    @Override
+                    public void accept(TVShow tvShow) throws Exception {
+                        isTVShowAvailableInWatchlist = true;
+                        activityTvshowDetailsBinding.imageWatchlist.setImageResource(R.drawable.ic_check);
+                        compositeDisposable.dispose();
+                    }
+                }));
 
     }
 
@@ -85,12 +110,7 @@ public class TVShowDetailsActivity extends AppCompatActivity {
                         loadImageSlider(tvShowDetailsResponse.getTvShowDetails().getPictures());
                     }
                     activityTvshowDetailsBinding.setTvShowImageURL(tvShowDetailsResponse.getTvShowDetails().getImagePath());
-//                    activityTvshowDetailsBinding.setDescription(String.valueOf(
-//                            HtmlCompat.fromHtml(
-//                                    tvShowDetailsResponse.getTvShowDetails().getDescription()
-//                                    , HtmlCompat.FROM_HTML_MODE_LEGACY
-//                            )
-//                    ));
+
                     activityTvshowDetailsBinding.setDescription(tvShowDetailsResponse.getTvShowDetails().getDescription());
 
                     activityTvshowDetailsBinding.textReadMore.setOnClickListener(new View.OnClickListener() {
@@ -99,11 +119,11 @@ public class TVShowDetailsActivity extends AppCompatActivity {
                             if (activityTvshowDetailsBinding.textReadMore.getText().toString().equals("Read More")) {
                                 activityTvshowDetailsBinding.textDescription.setMaxLines(Integer.MAX_VALUE);
                                 activityTvshowDetailsBinding.textDescription.setEllipsize(null);
-                                activityTvshowDetailsBinding.textReadMore.setText("Read Less");
+                                activityTvshowDetailsBinding.textReadMore.setText(R.string.read_less);
                             } else {
                                 activityTvshowDetailsBinding.textDescription.setMaxLines(4);
                                 activityTvshowDetailsBinding.textDescription.setEllipsize(TextUtils.TruncateAt.END);
-                                activityTvshowDetailsBinding.textReadMore.setText("Read More");
+                                activityTvshowDetailsBinding.textReadMore.setText(R.string.read_more);
 
                             }
                         }
@@ -151,29 +171,41 @@ public class TVShowDetailsActivity extends AppCompatActivity {
 
                     });
                     activityTvshowDetailsBinding.imageWatchlist.setOnClickListener(view12 -> {
-                        // Tạo một CompositeDisposable để quản lý các tài nguyên
-                        Toast.makeText(TVShowDetailsActivity.this, "Click", Toast.LENGTH_LONG).show();
-                        Log.e("TAG", "Click adding to watchlist: ");
+
 
                         CompositeDisposable compositeDisposable = new CompositeDisposable();
-                        // Thực hiện thêm TV show vào danh sách theo dõi thông qua ViewModel
-                        Disposable disposable = tvShowDetailsViewModel.addToWatchlist(tvShow)
-                                .subscribeOn(Schedulers.io()) // Thực hiện trên luồng I/O
-                                .observeOn(AndroidSchedulers.mainThread()) // Thực hiện trên luồng chính (UI)
-                                .subscribe(() -> {
-                                    // Khi thêm vào danh sách thành công, cập nhật giao diện người dùng
-                                    activityTvshowDetailsBinding.imageWatchlist.setImageResource(R.drawable.ic_check);
-                                    // Hiển thị thông báo "Added to watchlist"
-                                    Toast.makeText(getApplicationContext(), "Added to watchlist", Toast.LENGTH_LONG).show();
-                                }, throwable -> {
-                                    // Xử lý khi có lỗi xảy ra (nếu cần)
-                                    Log.e("TAG", "Error adding to watchlist: " + throwable.getMessage());
-                                });
+                        if (isTVShowAvailableInWatchlist) {
+                            compositeDisposable.add(tvShowDetailsViewModel.removeTVShowFromWatchlist(tvShow)
+                                    .subscribeOn(Schedulers.computation())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(new Action() {
+                                        @Override
+                                        public void run() throws Exception {
+                                            isTVShowAvailableInWatchlist = false;
+                                            activityTvshowDetailsBinding.imageWatchlist.setImageResource(R.drawable.ic_eye);
+                                            Toast.makeText(TVShowDetailsActivity.this, "Removed from watchhlist", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }));
+                        } else {
+                            compositeDisposable.add(tvShowDetailsViewModel.addToWatchlist(tvShow)
+                                    .subscribeOn(Schedulers.io()) // Thực hiện trên luồng I/O
+                                    .observeOn(AndroidSchedulers.mainThread()) // Thực hiện trên luồng chính (UI)
+                                    .subscribe(() -> {
+                                        // Khi thêm vào danh sách thành công, cập nhật giao diện người dùng
+                                        activityTvshowDetailsBinding.imageWatchlist.setImageResource(R.drawable.ic_check);
+                                        // Hiển thị thông báo "Added to watchlist"
+                                        Toast.makeText(getApplicationContext(), "Added to watchlist", Toast.LENGTH_LONG).show();
+                                        compositeDisposable.dispose();
+                                    }, throwable -> {
+                                        // Xử lý khi có lỗi xảy ra (nếu cần)
+                                        Log.e("TAG", "Error adding to watchlist: " + throwable.getMessage());
+                                    }));
 
-                        // Thêm Disposable vào CompositeDisposable để quản lý
-                        compositeDisposable.add(disposable);
+                        }
+                        activityTvshowDetailsBinding.imageWatchlist.setVisibility(View.VISIBLE);
                     });
-                    activityTvshowDetailsBinding.imageWatchlist.setVisibility(View.VISIBLE);
+                    // Thực hiện thêm TV show vào danh sách theo dõi thông qua ViewModel
+
                     loadBasicTVShowDetails();
                 }
             }
