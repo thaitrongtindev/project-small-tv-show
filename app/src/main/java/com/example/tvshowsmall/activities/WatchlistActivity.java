@@ -1,5 +1,6 @@
 package com.example.tvshowsmall.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -13,18 +14,29 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.tvshowsmall.R;
+import com.example.tvshowsmall.adapter.WatchlistAdapter;
 import com.example.tvshowsmall.databinding.ActivityWatchlistBinding;
+import com.example.tvshowsmall.listeners.WatchlistListener;
+import com.example.tvshowsmall.models.TVShow;
 import com.example.tvshowsmall.viewmodels.WatchlistViewModel;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import io.reactivex.CompletableObserver;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 
-public class WatchlistActivity extends AppCompatActivity {
+public class WatchlistActivity extends AppCompatActivity implements WatchlistListener {
 
     private ActivityWatchlistBinding binding;
     private WatchlistViewModel viewModel;
+    private WatchlistAdapter watchlistAdapter;
+    private List<TVShow> watchlist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +61,7 @@ public class WatchlistActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
+        watchlist = new ArrayList<>();
     }
 
     private void loadWatchlist() {
@@ -60,7 +73,13 @@ public class WatchlistActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(tvShows -> {
                     binding.setIsLoading(false);
-                    Toast.makeText(this, "Watchlist: " + tvShows.size(), Toast.LENGTH_SHORT).show();
+                    if (watchlist.size() > 0) {
+                        watchlist.clear();
+                    }
+                    watchlist.addAll(tvShows);
+                    watchlistAdapter = new WatchlistAdapter(watchlist, this);
+                    binding.watchlistRecyclerView.setAdapter(watchlistAdapter);
+
                 })
         );
     }
@@ -69,6 +88,30 @@ public class WatchlistActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadWatchlist();
+    }
+
+    @Override
+    public void onTVShowClicked(TVShow tvShow) {
+        Intent intent = new Intent(getApplicationContext(), TVShowDetailsActivity.class);
+        intent.putExtra("tvShow", tvShow);
+        startActivity(intent);
+    }
+
+    @Override
+    public void removeTVShowFromWatchlist(TVShow tvShow, int position) {
+        CompositeDisposable  compositeDisposable = new CompositeDisposable();
+        compositeDisposable.add(viewModel.removeFromWatchlist(tvShow)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        watchlist.remove(position);
+                        watchlistAdapter.notifyItemRangeChanged(position, watchlistAdapter.getItemCount());
+                        watchlistAdapter.notifyItemRemoved(position);
+                        compositeDisposable.dispose();
+                    }
+                }));
     }
 }
 

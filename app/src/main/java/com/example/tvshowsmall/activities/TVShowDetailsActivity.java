@@ -68,6 +68,7 @@ public class TVShowDetailsActivity extends AppCompatActivity {
         activityTvshowDetailsBinding.imageBack.setOnClickListener(view -> onBackPressed());
         tvShow = (TVShow) getIntent().getSerializableExtra("tvShow");
         getTVShowsDetails();
+
     }
 
     private void getTVShowsDetails() {
@@ -127,6 +128,7 @@ public class TVShowDetailsActivity extends AppCompatActivity {
                         }
                     });
                     // click
+
                     activityTvshowDetailsBinding.btnEpisodes.setOnClickListener(view -> {
                         Toast.makeText(TVShowDetailsActivity.this, "Click Episode", Toast.LENGTH_LONG).show();
                         episodeBottomSheetDiaglog = new BottomSheetDialog(TVShowDetailsActivity.this);
@@ -146,30 +148,30 @@ public class TVShowDetailsActivity extends AppCompatActivity {
 
                         // click add moive
                         // Gắn một OnClickListener vào biểu tượng imageWatchlist
-                        activityTvshowDetailsBinding.imageWatchlist.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                // Tạo một CompositeDisposable để quản lý các tài nguyên
-                                CompositeDisposable compositeDisposable = new CompositeDisposable();
-                                Toast.makeText(TVShowDetailsActivity.this, "Click", Toast.LENGTH_LONG).show();
-                                // Thực hiện thêm TV show vào danh sách theo dõi thông qua ViewModel
-                                Disposable disposable = tvShowDetailsViewModel.addToWatchlist(tvShow)
-                                        .subscribeOn(Schedulers.io()) // Thực hiện trên luồng I/O
-                                        .observeOn(AndroidSchedulers.mainThread()) // Thực hiện trên luồng chính (UI)
-                                        .subscribe(() -> {
-                                            // Khi thêm vào danh sách thành công, cập nhật giao diện người dùng
-                                            activityTvshowDetailsBinding.imageWatchlist.setImageResource(R.drawable.ic_check);
-                                            // Hiển thị thông báo "Added to watchlist"
-                                            Toast.makeText(getApplicationContext(), "Added to watchlist", Toast.LENGTH_LONG).show();
-                                        }, throwable -> {
-                                            // Xử lý khi có lỗi xảy ra (nếu cần)
-                                            Log.e("TAG", "Error adding to watchlist: " + throwable.getMessage());
-                                        });
 
-                                // Thêm Disposable vào CompositeDisposable để quản lý
-                                compositeDisposable.add(disposable);
-                            }
-                        });
+                    });
+                    activityTvshowDetailsBinding.imageWatchlist.setOnClickListener(view12 -> {
+                        // Tạo một CompositeDisposable để quản lý các tài nguyên
+                        Toast.makeText(TVShowDetailsActivity.this, "Click", Toast.LENGTH_LONG).show();
+                        Log.e("TAG", "Click adding to watchlist: ");
+
+                        CompositeDisposable compositeDisposable = new CompositeDisposable();
+                        // Thực hiện thêm TV show vào danh sách theo dõi thông qua ViewModel
+                        Disposable disposable = tvShowDetailsViewModel.addToWatchlist(tvShow)
+                                .subscribeOn(Schedulers.io()) // Thực hiện trên luồng I/O
+                                .observeOn(AndroidSchedulers.mainThread()) // Thực hiện trên luồng chính (UI)
+                                .subscribe(() -> {
+                                    // Khi thêm vào danh sách thành công, cập nhật giao diện người dùng
+                                    activityTvshowDetailsBinding.imageWatchlist.setImageResource(R.drawable.ic_check);
+                                    // Hiển thị thông báo "Added to watchlist"
+                                    Toast.makeText(getApplicationContext(), "Added to watchlist", Toast.LENGTH_LONG).show();
+                                }, throwable -> {
+                                    // Xử lý khi có lỗi xảy ra (nếu cần)
+                                    Log.e("TAG", "Error adding to watchlist: " + throwable.getMessage());
+                                });
+
+                        // Thêm Disposable vào CompositeDisposable để quản lý
+                        compositeDisposable.add(disposable);
                     });
                     activityTvshowDetailsBinding.imageWatchlist.setVisibility(View.VISIBLE);
                     loadBasicTVShowDetails();
