@@ -81,12 +81,7 @@ public class WatchlistActivity extends AppCompatActivity implements WatchlistLis
         );
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-            loadWatchlist();
 
-    }
 
     @Override
     public void onTVShowClicked(TVShow tvShow) {

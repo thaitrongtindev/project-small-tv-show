@@ -108,7 +108,7 @@ public class SearchActivity extends AppCompatActivity implements TVShowsListener
                 }
             }
         });
-        binding.edtSearch.requestFocus();
+        binding.edtSearch.requestFocus(); 
 
     }
 

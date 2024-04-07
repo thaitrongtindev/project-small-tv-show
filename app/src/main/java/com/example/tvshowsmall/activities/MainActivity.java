@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity  implements TVShowsListener 
             public void onChanged(TVShowResponse tvShowResponse) {
              //   activityMainBinding.setIsLoading(false);
                 toggleLoading();
-                totalAvailablePage = tvShowResponse.getTotalPages();// tong trong hien co
+                    totalAvailablePage = tvShowResponse.getTotalPages();// tong trong hien co
                 if (tvShowResponse != null) {
                     int oldCount = tvShows.size(); // so phan tu cua TVshow tra ve
                     tvShows.addAll(tvShowResponse.getTvShows());

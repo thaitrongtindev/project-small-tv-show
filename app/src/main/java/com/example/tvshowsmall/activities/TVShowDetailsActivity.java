@@ -87,7 +87,7 @@ public class TVShowDetailsActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<TVShow>() {
                     @Override
-                    public void accept(TVShow tvShow) throws Exception {
+                    public void accept( TVShow tvShow) throws Exception {
                         isTVShowAvailableInWatchlist = true;
                         activityTvshowDetailsBinding.imageWatchlist.setImageResource(R.drawable.ic_check);
                         compositeDisposable.dispose();

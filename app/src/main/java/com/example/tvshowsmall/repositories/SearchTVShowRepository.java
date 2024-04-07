@@ -20,7 +20,7 @@ public class SearchTVShowRepository {
         this.apiService = ApiClient.getRetrofit().create(ApiService.class);
     }
 
-    public LiveData<TVShowResponse> searchTVShow(String query, int page) {
+        public LiveData<TVShowResponse> searchTVShow(String query, int page) {
         MutableLiveData<TVShowResponse> tvShowResponseMutableLiveData = new MutableLiveData<>();
         apiService.searchTVShow(query, page).enqueue(new Callback<TVShowResponse>() {
             @Override
