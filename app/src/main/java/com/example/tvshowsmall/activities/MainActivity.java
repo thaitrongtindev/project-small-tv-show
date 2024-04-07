@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.example.tvshowsmall.R;
 import com.example.tvshowsmall.adapter.TVShowsAdapter;
@@ -65,7 +66,19 @@ public class MainActivity extends AppCompatActivity  implements TVShowsListener 
             }
         });
 
+        activityMainBinding.imageViewWatchlist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), WatchlistActivity.class));
+            }
+        });
 
+        activityMainBinding.imageViewSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), SearchActivity.class));
+            }
+        });
         getMostPopularTVShows();
     }
 
@@ -80,7 +93,7 @@ public class MainActivity extends AppCompatActivity  implements TVShowsListener 
             public void onChanged(TVShowResponse tvShowResponse) {
              //   activityMainBinding.setIsLoading(false);
                 toggleLoading();
-                totalAvailablePage = tvShowResponse.getTotalPages();// tong trong hien co
+                    totalAvailablePage = tvShowResponse.getTotalPages();// tong trong hien co
                 if (tvShowResponse != null) {
                     int oldCount = tvShows.size(); // so phan tu cua TVshow tra ve
                     tvShows.addAll(tvShowResponse.getTvShows());
@@ -112,12 +125,7 @@ public class MainActivity extends AppCompatActivity  implements TVShowsListener 
     @Override
     public void onTVShowClicked(TVShow tvShow) {
         Intent intent = new Intent(getApplicationContext(), TVShowDetailsActivity.class);
-        intent.putExtra("id", tvShow.getId());
-        intent.putExtra("name", tvShow.getName());
-        intent.putExtra("startDate", tvShow.getStartDate());
-        intent.putExtra("country", tvShow.getCountry());
-        intent.putExtra("network", tvShow.getNetwork());
-        intent.putExtra("status", tvShow.getStatus());
+        intent.putExtra("tvShow", tvShow);
         startActivity(intent);
     }
 }
