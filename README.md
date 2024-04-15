@@ -6,8 +6,8 @@ Technology: Java, MVVM Architecture, Room Database, RxJava,
 DataBinding, LiveData, Retrofit
 ## Features:
 Display a list of popular TV shows using Retrofit to call API combined with
-RxJava, LiveData, DataBinding to observe data changes and display data
-on RecyclerView.
+Kotlin Coroutine, LiveData, DataBinding to observe data changes and
+display data on RecyclerView.
 Allow users to click on a TV show in the list to view detailed information
 retrieved from the API.
 Enable users to add, update, delete TV shows from the Room database
